@@ -45,6 +45,19 @@ config :proofwith, ProofwithWeb.Endpoint,
   pubsub_server: Proofwith.PubSub,
   live_view: [signing_salt: "nP1WZBVz"]
 
+config :proofwith, :scopes,
+  user: [
+    default: true,
+    module: Proofwith.Accounts.Scope,
+    assign_key: :current_scope,
+    access_path: [:user, :id],
+    schema_key: :user_id,
+    schema_type: :binary_id,
+    schema_table: :users,
+    test_data_fixture: Proofwith.AccountsFixtures,
+    test_login_helper: :register_and_log_in_user
+  ]
+
 config :proofwith,
   ecto_repos: [Proofwith.Repo],
   generators: [timestamp_type: :utc_datetime_usec, binary_id: true]
