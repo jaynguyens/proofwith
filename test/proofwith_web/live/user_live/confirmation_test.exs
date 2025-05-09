@@ -54,7 +54,7 @@ defmodule ProofwithWeb.UserLive.ConfirmationTest do
       assert redirected_to(conn) == ~p"/"
 
       # log out, new conn
-      conn = build_conn()
+      conn = %{build_conn() | host: "app.localhost"}
 
       {:ok, _lv, html} =
         conn
@@ -86,7 +86,7 @@ defmodule ProofwithWeb.UserLive.ConfirmationTest do
       assert Accounts.get_user!(user.id).confirmed_at == user.confirmed_at
 
       # log out, new conn
-      conn = build_conn()
+      conn = %{build_conn() | host: "app.localhost"}
 
       {:ok, _lv, html} =
         conn

@@ -121,5 +121,39 @@ defmodule Proofwith.ProjectsTest do
       project = project_fixture(scope)
       assert %Ecto.Changeset{} = Projects.change_project(scope, project)
     end
+
+    test "get_project_by_slug!/2 returns the project with given slug" do
+      scope = user_scope_fixture()
+      organization = organization_fixture(scope)
+      scope = Scope.for_organization(scope, organization)
+      project = project_fixture(scope)
+      found = Projects.get_project_by_slug!(scope, project.slug)
+      assert found.id == project.id
+    end
+
+    test "get_project_by_slug!/2 raises if slug does not exist for org" do
+      scope = user_scope_fixture()
+      organization = organization_fixture(scope)
+      scope = Scope.for_organization(scope, organization)
+      project_fixture(scope)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Projects.get_project_by_slug!(scope, "nonexistent-slug")
+      end
+    end
+
+    test "get_project_by_slug!/2 does not return projects from other orgs" do
+      scope = user_scope_fixture()
+      organization = organization_fixture(scope)
+      scope = Scope.for_organization(scope, organization)
+      other_scope = user_scope_fixture()
+      other_organization = organization_fixture(other_scope)
+      other_scope = Scope.for_organization(other_scope, other_organization)
+      project = project_fixture(other_scope)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Projects.get_project_by_slug!(scope, project.slug)
+      end
+    end
   end
 end

@@ -91,6 +91,32 @@ defmodule Proofwith.OrganizationsTest do
       organization = organization_fixture(scope)
       assert %Ecto.Changeset{} = Organizations.change_organization(scope, organization)
     end
+
+    test "get_organization_by_slug!/2 returns the organization with given slug" do
+      scope = user_scope_fixture()
+      organization = organization_fixture(scope)
+      found = Organizations.get_organization_by_slug!(scope, organization.slug)
+      assert found.id == organization.id
+    end
+
+    test "get_organization_by_slug!/2 raises if slug does not exist for user" do
+      scope = user_scope_fixture()
+      organization_fixture(scope)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Organizations.get_organization_by_slug!(scope, "nonexistent-slug")
+      end
+    end
+
+    test "get_organization_by_slug!/2 does not return orgs from other users" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      organization = organization_fixture(other_scope)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Organizations.get_organization_by_slug!(scope, organization.slug)
+      end
+    end
   end
 
   describe "memberships" do

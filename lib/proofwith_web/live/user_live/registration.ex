@@ -55,7 +55,7 @@ defmodule ProofwithWeb.UserLive.Registration do
         {:ok, _} =
           Accounts.deliver_login_instructions(
             user,
-            &url(~p"/users/log-in/#{&1}")
+            &"http://app.localhost:4000/users/log-in/#{&1}"
           )
 
         {:noreply,

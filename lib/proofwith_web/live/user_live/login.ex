@@ -111,7 +111,7 @@ defmodule ProofwithWeb.UserLive.Login do
     if user = Accounts.get_user_by_email(email) do
       Accounts.deliver_login_instructions(
         user,
-        &url(~p"/users/log-in/#{&1}")
+        &"http://app.localhost:4000/users/log-in/#{&1}"
       )
     end
 

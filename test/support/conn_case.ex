@@ -33,7 +33,9 @@ defmodule ProofwithWeb.ConnCase do
 
   setup tags do
     Proofwith.DataCase.setup_sandbox(tags)
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    # Set the default host for all tests using ConnCase
+    conn = Map.put(Phoenix.ConnTest.build_conn(), :host, "app.localhost")
+    {:ok, conn: conn}
   end
 
   @doc """

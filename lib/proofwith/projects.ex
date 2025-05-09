@@ -63,6 +63,24 @@ defmodule Proofwith.Projects do
   end
 
   @doc """
+  Gets a single project by slug for the current organization scope.
+
+  Raises `Ecto.NoResultsError` if the Project does not exist.
+
+  ## Examples
+
+      iex> get_project_by_slug!(scope, "project-slug")
+      %Project{}
+
+      iex> get_project_by_slug!(scope, "bad-slug")
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_project_by_slug!(%Scope{} = scope, slug) when is_binary(slug) do
+    Repo.get_by!(Project, slug: slug, organization_id: scope.organization.id)
+  end
+
+  @doc """
   Creates a project.
 
   ## Examples

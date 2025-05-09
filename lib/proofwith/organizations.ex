@@ -64,6 +64,24 @@ defmodule Proofwith.Organizations do
   end
 
   @doc """
+  Gets a single organization by slug for the current user scope.
+
+  Raises `Ecto.NoResultsError` if the Organization does not exist.
+
+  ## Examples
+
+      iex> get_organization_by_slug!(scope, "org-slug")
+      %Organization{}
+
+      iex> get_organization_by_slug!(scope, "bad-slug")
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_organization_by_slug!(%Scope{} = scope, slug) when is_binary(slug) do
+    Repo.get_by!(Organization, slug: slug, user_id: scope.user.id)
+  end
+
+  @doc """
   Creates a organization.
 
   ## Examples

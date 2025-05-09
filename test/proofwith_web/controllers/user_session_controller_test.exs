@@ -6,7 +6,8 @@ defmodule ProofwithWeb.UserSessionControllerTest do
   alias Proofwith.Accounts
 
   setup do
-    %{unconfirmed_user: unconfirmed_user_fixture(), user: user_fixture()}
+    conn = Map.put(Phoenix.ConnTest.build_conn(), :host, "app.localhost")
+    %{unconfirmed_user: unconfirmed_user_fixture(), user: user_fixture(), conn: conn}
   end
 
   describe "POST /users/log-in - email and password" do
