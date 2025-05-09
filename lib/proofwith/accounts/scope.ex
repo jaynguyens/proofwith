@@ -17,8 +17,10 @@ defmodule Proofwith.Accounts.Scope do
   """
 
   alias Proofwith.Accounts.User
+  alias Proofwith.Organizations.Organization
+  alias Proofwith.Projects.Project
 
-  defstruct user: nil
+  defstruct user: nil, organization: nil, project: nil
 
   @doc """
   Creates a scope for the given user.
@@ -30,4 +32,26 @@ defmodule Proofwith.Accounts.Scope do
   end
 
   def for_user(nil), do: nil
+
+  @doc """
+  Creates a scope for the given organization.
+
+  Returns the scope if no organization is given.
+  """
+  def for_organization(scope, %Organization{} = organization) do
+    %{scope | organization: organization}
+  end
+
+  def for_organization(scope, nil), do: scope
+
+  @doc """
+  Creates a scope for the given project.
+
+  Returns the scope if no project is given.
+  """
+  def for_project(scope, %Project{} = project) do
+    %{scope | project: project}
+  end
+
+  def for_project(scope, nil), do: scope
 end
