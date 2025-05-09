@@ -9,7 +9,7 @@ import Config
 
 config :proofwith,
   ecto_repos: [Proofwith.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime_usec, binary_id: true]
 
 # Configures the endpoint
 config :proofwith, ProofwithWeb.Endpoint,
