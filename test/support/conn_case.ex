@@ -19,15 +19,15 @@ defmodule ProofwithWeb.ConnCase do
 
   using do
     quote do
-      # The default endpoint for testing
-      @endpoint ProofwithWeb.Endpoint
-
       use ProofwithWeb, :verified_routes
 
       # Import conveniences for testing with connections
-      import Plug.Conn
       import Phoenix.ConnTest
+      import Plug.Conn
       import ProofwithWeb.ConnCase
+
+      # The default endpoint for testing
+      @endpoint ProofwithWeb.Endpoint
     end
   end
 
