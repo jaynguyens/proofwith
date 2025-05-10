@@ -1,6 +1,9 @@
 defmodule Proofwith.Organizations do
   @moduledoc """
   The Organizations context.
+
+  All functions require a `%Proofwith.Accounts.Scope{}` as the first argument,
+  following the Phoenix 1.8 Scopes pattern.
   """
 
   import Ecto.Query, warn: false
@@ -33,7 +36,7 @@ defmodule Proofwith.Organizations do
   end
 
   @doc """
-  Returns the list of organizations.
+  Returns the list of organizations user is a member of.
 
   ## Examples
 
@@ -42,7 +45,33 @@ defmodule Proofwith.Organizations do
 
   """
   def list_organizations(%Scope{} = scope) do
-    Repo.all(from organization in Organization, where: organization.user_id == ^scope.user.id)
+    Repo.all(
+      from(o in Organization,
+        left_join: m in Membership,
+        on: m.organization_id == o.id and m.user_id == ^scope.user.id,
+        where: o.user_id == ^scope.user.id or not is_nil(m.id),
+        distinct: true
+      )
+    )
+  end
+
+  @doc """
+  Returns the list of organizations with their projects.
+
+  ## Examples
+
+      iex> list_organizations_with_projects(scope)
+      [%{org: %Organization{}, projects: [%Project{}, ...]}]
+  """
+  def list_organizations_with_projects(%Scope{} = scope) do
+    orgs =
+      scope
+      |> list_organizations()
+      |> Repo.preload(:projects)
+
+    Enum.map(orgs, fn org ->
+      %{org: org, projects: org.projects}
+    end)
   end
 
   @doc """
@@ -52,10 +81,10 @@ defmodule Proofwith.Organizations do
 
   ## Examples
 
-      iex> get_organization!(123)
+      iex> get_organization!(scope, 123)
       %Organization{}
 
-      iex> get_organization!(456)
+      iex> get_organization!(scope, 456)
       ** (Ecto.NoResultsError)
 
   """
@@ -82,25 +111,21 @@ defmodule Proofwith.Organizations do
   end
 
   @doc """
-  Creates a organization.
+  Creates an organization scoped to the current user.
 
   ## Examples
 
-      iex> create_organization(%{field: value})
+      iex> create_organization(scope, %{name: "Acme", slug: "acme"})
       {:ok, %Organization{}}
 
-      iex> create_organization(%{field: bad_value})
+      iex> create_organization(scope, %{name: nil})
       {:error, %Ecto.Changeset{}}
 
   """
   def create_organization(%Scope{} = scope, attrs) do
-    with {:ok, %Organization{} = organization} <-
-           %Organization{}
-           |> Organization.changeset(attrs, scope)
-           |> Repo.insert() do
-      broadcast(scope, {:created, organization})
-      {:ok, organization}
-    end
+    %Organization{}
+    |> Organization.changeset(attrs, scope)
+    |> Repo.insert()
   end
 
   @doc """
@@ -108,10 +133,10 @@ defmodule Proofwith.Organizations do
 
   ## Examples
 
-      iex> update_organization(organization, %{field: new_value})
+      iex> update_organization(scope, organization, %{field: new_value})
       {:ok, %Organization{}}
 
-      iex> update_organization(organization, %{field: bad_value})
+      iex> update_organization(scope, organization, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
@@ -132,10 +157,10 @@ defmodule Proofwith.Organizations do
 
   ## Examples
 
-      iex> delete_organization(organization)
+      iex> delete_organization(scope, organization)
       {:ok, %Organization{}}
 
-      iex> delete_organization(organization)
+      iex> delete_organization(scope, organization)
       {:error, %Ecto.Changeset{}}
 
   """
@@ -154,13 +179,11 @@ defmodule Proofwith.Organizations do
 
   ## Examples
 
-      iex> change_organization(organization)
+      iex> change_organization(scope, %Organization{})
       %Ecto.Changeset{data: %Organization{}}
 
   """
   def change_organization(%Scope{} = scope, %Organization{} = organization, attrs \\ %{}) do
-    true = organization.user_id == scope.user.id
-
     Organization.changeset(organization, attrs, scope)
   end
 
@@ -200,10 +223,10 @@ defmodule Proofwith.Organizations do
 
   ## Examples
 
-      iex> get_membership!(123)
+      iex> get_membership!(scope, 123)
       %Membership{}
 
-      iex> get_membership!(456)
+      iex> get_membership!(scope, 456)
       ** (Ecto.NoResultsError)
 
   """
@@ -216,10 +239,10 @@ defmodule Proofwith.Organizations do
 
   ## Examples
 
-      iex> create_membership(%{field: value})
+      iex> create_membership(scope, %{field: value})
       {:ok, %Membership{}}
 
-      iex> create_membership(%{field: bad_value})
+      iex> create_membership(scope, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
@@ -238,10 +261,10 @@ defmodule Proofwith.Organizations do
 
   ## Examples
 
-      iex> update_membership(membership, %{field: new_value})
+      iex> update_membership(scope, membership, %{field: new_value})
       {:ok, %Membership{}}
 
-      iex> update_membership(membership, %{field: bad_value})
+      iex> update_membership(scope, membership, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
@@ -262,10 +285,10 @@ defmodule Proofwith.Organizations do
 
   ## Examples
 
-      iex> delete_membership(membership)
+      iex> delete_membership(scope, membership)
       {:ok, %Membership{}}
 
-      iex> delete_membership(membership)
+      iex> delete_membership(scope, membership)
       {:error, %Ecto.Changeset{}}
 
   """
@@ -284,7 +307,7 @@ defmodule Proofwith.Organizations do
 
   ## Examples
 
-      iex> change_membership(membership)
+      iex> change_membership(scope, membership)
       %Ecto.Changeset{data: %Membership{}}
 
   """

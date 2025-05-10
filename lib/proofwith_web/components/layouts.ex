@@ -32,14 +32,30 @@ defmodule ProofwithWeb.Layouts do
   def app(assigns) do
     ~H"""
     <header class="px-4 py-2 w-full flex justify-between items-center border-b border-base-300">
-      <div class="flex-1">
-        <a href="/" class="flex-1 flex w-fit items-center gap-2">
-          <img src={~p"/images/logo.svg"} width="36" />
-          <span class="text-sm font-semibold">v{Application.spec(:phoenix, :vsn)}</span>
-        </a>
-      </div>
-      <div>
-        <.theme_toggle />
+      <div class="flex items-center justify-between h-full pr-3 flex-1 overflow-x-auto gap-x-8 pl-4">
+        <div class="flex items-center text-sm">
+          <a href="/" class="flex items-center gap-2">
+            <img src={~p"/images/logo.svg"} width="26" height="18" />
+          </a>
+          <span class="mx-4 text-base-300">/</span>
+          <%!-- <nav :if={@breadcrumb != []} aria-label="Breadcrumb">
+              <ol class="flex items-center space-x-2 text-sm text-base-content">
+                <%= for {{label, path}, idx} <- Enum.with_index(@breadcrumb) do %>
+                  <li class="flex items-center">
+                    <a href={path}>{label}</a>
+                    <span :if={idx < length(@breadcrumb) - 1} class="mx-2 text-base-300">/</span>
+                  </li>
+                <% end %>
+              </ol>
+            </nav> --%>
+        </div>
+        <div class="flex items-center gap-x-2">
+          <button class="btn btn-outline btn-sm border-base-300">Feedback</button>
+          <button class="btn btn-ghost btn-sm btn-square">
+            <.icon name="hero-question-mark-circle" class="size-4 shrink-0" />
+          </button>
+          <.theme_toggle />
+        </div>
       </div>
     </header>
 
@@ -125,6 +141,77 @@ defmodule ProofwithWeb.Layouts do
         <.icon name="hero-moon-micro" class="size-4 opacity-75 hover:opacity-100" />
       </button>
     </div>
+    """
+  end
+
+  @doc """
+  Renders an organization layout with a sidebar and main content area.
+  Intended to be nested inside <Layouts.app> (no header/flash).
+
+  ## Assigns
+  - :active_page - the key of the current page (for sidebar highlighting)
+  - :org - the organization struct (for sidebar links)
+
+  ## Example
+    <Layouts.app ...>
+      <Layouts.org org={@org} active_page={:team}>
+        ...
+      </Layouts.org>
+    </Layouts.app>
+  """
+  attr :active_page, :atom, required: true
+  attr :org, :map, required: true
+  slot :inner_block, required: true
+
+  def org(assigns) do
+    sidebar_items = [
+      %{
+        key: :projects,
+        label: "Projects",
+        path: "/#{assigns.org.slug}/projects",
+        icon: "hero-folder"
+      },
+      %{key: :team, label: "Team", path: "/#{assigns.org.slug}/team", icon: "hero-users"},
+      %{
+        key: :billing,
+        label: "Billing",
+        path: "/#{assigns.org.slug}/billing",
+        icon: "hero-credit-card"
+      },
+      %{
+        key: :settings,
+        label: "Settings",
+        path: "/#{assigns.org.slug}/settings",
+        icon: "hero-cog-6-tooth"
+      }
+    ]
+
+    assigns = assign(assigns, sidebar_items: sidebar_items)
+
+    ~H"""
+    <section class="w-full h-[calc(100dvh-48px)] flex">
+      <aside class="hidden md:block w-64 h-full border-r border-base-300">
+        <ul class="menu bg-base-200 p-4 w-full h-full shadow-md space-y-1">
+          <%= for item <- @sidebar_items do %>
+            <.link
+              navigate={item.path}
+              class={[
+                "flex items-center gap-2 px-3 py-2 rounded-lg transition",
+                @active_page == item.key && "bg-base-300 text-base-content",
+                @active_page != item.key && "hover:bg-base-300"
+              ]}
+            >
+              <.icon name={item.icon} class="size-5" />
+              {item.label}
+            </.link>
+          <% end %>
+        </ul>
+      </aside>
+
+      <div class="flex-1">
+        {render_slot(@inner_block)}
+      </div>
+    </section>
     """
   end
 end

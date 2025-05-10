@@ -12,6 +12,7 @@ defmodule Proofwith.Projects.Project do
     field :name, :string
     field :slug, :string
     field :meta, :map
+
     belongs_to :organization, Organization
 
     timestamps(type: :utc_datetime_usec)

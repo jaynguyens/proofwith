@@ -75,6 +75,7 @@ defmodule ProofwithWeb.Router do
     live_session :user_authenticated,
       on_mount: [{ProofwithWeb.UserAuth, :require_authenticated}] do
       live "/", ApplicationLive.Organizations.Organization
+      live "/new", ApplicationLive.Organizations.New
     end
 
     scope "/:org_slug" do

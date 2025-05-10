@@ -23,5 +23,6 @@ defmodule Proofwith.Organizations.Membership do
     |> cast(attrs, [:role])
     |> validate_required([:role])
     |> put_change(:user_id, user_scope.user.id)
+    |> put_change(:organization_id, user_scope.organization.id)
   end
 end

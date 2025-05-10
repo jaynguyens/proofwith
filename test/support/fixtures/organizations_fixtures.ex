@@ -28,11 +28,9 @@ defmodule Proofwith.OrganizationsFixtures do
   Generate a membership.
   """
   def membership_fixture(scope, attrs \\ %{}) do
-    attrs =
-      Enum.into(attrs, %{
-        role: :owner
-      })
-
+    org = Map.get(attrs, :organization) || organization_fixture(scope)
+    scope = Proofwith.Accounts.Scope.for_organization(scope, org)
+    attrs = Map.put_new(attrs, :role, :owner)
     {:ok, membership} = Proofwith.Organizations.create_membership(scope, attrs)
     membership
   end

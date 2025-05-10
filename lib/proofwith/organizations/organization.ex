@@ -5,6 +5,7 @@ defmodule Proofwith.Organizations.Organization do
   import Ecto.Changeset
 
   alias Proofwith.Accounts.User
+  alias Proofwith.Projects.Project
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -12,7 +13,9 @@ defmodule Proofwith.Organizations.Organization do
     field :name, :string
     field :slug, :string
     field :meta, :map
+
     belongs_to :user, User
+    has_many :projects, Project
 
     timestamps(type: :utc_datetime_usec)
   end
